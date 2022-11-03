@@ -6,7 +6,7 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-
+from termcolor import colored
 
 import os
 import random
@@ -16,6 +16,8 @@ from typing import List
 
 import interactions
 from discord.ext import tasks
+import asyncio
+
 from dotenv import load_dotenv
 from genericpath import exists
 from interactions import ActionRow, SelectMenu, SelectOption
@@ -23,10 +25,13 @@ from interactions import ActionRow, SelectMenu, SelectOption
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD_ID = os.getenv('GUILD_ID')
+MOODLE_URL = os.getenv('MOODLE_URL')
 
 
+# Starte den Bot
 bot = interactions.Client(token=TOKEN)
 
+#TODO: courses und course_ids in dict umwandeln
 
 courses = []
 course_ids =[]
@@ -35,7 +40,7 @@ channel_dict= {}
 con = sqlite3.connect("moodle/moodle_state.db")
 cur = con.cursor()
 
-# Alle Kurse die keinen Kurs zugewiesen sind bekommen
+# Alle Kurse die keinen Kurs zugewiesen sind werden zugewiesen
 
 async def generateCourseAssosiation():
     res =  cur.execute("SELECT course_fullname, course_id FROM files WHERE course_id NOT IN (SELECT DISTINCT course_id FROM course_channel_assignment) GROUP BY course_id")
@@ -55,7 +60,7 @@ async def fetchChannels():
         
 @bot.event
 async def on_ready():
-    print(f'{bot.me.name} has connected to Discord!')
+    print(colored(f'{bot.me.name} hat sich mit Discord verbunden!', 'green'))
 
 
 
@@ -63,9 +68,18 @@ async def on_ready():
     #bot.change_presence(interactions.ClientPresence(status=interactions.StatusType.IDLE, activities=[interactions.PresenceActivity(name="Organisieren", type=interactions.PresenceActivityType.CUSTOM)]))
     res2 = cur.execute("CREATE TABLE IF NOT EXISTS thread_channel(thread_id INT, section_id INT, text_channel INT, PRIMARY KEY(thread_id, section_id), FOREIGN KEY(section_id) REFERENCES files(section_id), FOREIGN KEY(text_channel) REFERENCES course_channel_assignment(text_channel))")
     
-    await fetchChannels()                                   
-    await generateCourseAssosiation()
-    await runTask.start()
+    # Schauen, ob eine Verbindung mit der Datenbank aufgebaut werden konnte
+    if con:
+        await fetchChannels()                                   
+        await generateCourseAssosiation()
+        try:
+            await runTask.start()
+        except RuntimeWarning as warning:
+            print(colored(f"An error occured: {warning}", 'red'))
+
+    else:
+        print(colored("Es konnte keine Verbindung zur Datenbank aufgebaut werden!", 'red'))
+        exit()
    
  
 
@@ -75,7 +89,7 @@ async def on_ready():
 
 
     
-@bot.command(name="assign", description="Assigns a moodle course with a textchannel", scope=1030146188214812783, 
+@bot.command(name="assign", description="Assigns a moodle course with a textchannel", scope=GUILD_ID, 
 options=[
     interactions.Option(name="text_channel", description="choose textchannel", type=interactions.OptionType.CHANNEL, required=True),
 ], default_member_permissions=interactions.Permissions.ADMINISTRATOR)
@@ -92,6 +106,7 @@ async def assign(ctx: interactions.CommandContext, text_channel: interactions.Ch
         await ctx.send("No courses found :frowning:")
 
 # Optionen für die Auswahl der Kurswahl
+
 async def generateOptions(text_ids: interactions.Snowflake):
     options= []
     p = 0
@@ -130,6 +145,7 @@ def generateFilter(filter: List[str]):
      return s
      
 #Upload a file to Google Drive 
+
 async def uploadFile(path):
     SCOPES = ['https://www.googleapis.com/auth/docs', 'https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/drive.metadata.readonly', '/auth/docs']
 
@@ -164,17 +180,17 @@ async def uploadFile(path):
             file_metadata = {'name': sp[-1]}
             media = MediaFileUpload(uploadFile)
             file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
-            print(F'File ID: {file}')
+            #print(F'File ID: {file}')
             file_id = file.get('id')
             ids = []
 
             def callback(request_id, response, exception):
                 if exception:
                     # Handle error
-                    print(exception)
+                    print(colored(exception, 'red'))
                 else:
-                    print(f'Request_Id: {request_id}')
-                    print(F'File Link: https://drive.google.com/uc?export=download&id={file_id}')
+                    # print(f'Request_Id: {request_id}')
+                    # print(F'File Link: https://drive.google.com/uc?export=download&id={file_id}')
                     ids.append(response.get('id'))
 
             # pylint: disable=maybe-no-member
@@ -192,7 +208,7 @@ async def uploadFile(path):
 
 
     except HttpError as error:
-        print(F'An error occurred: {error}')
+        print(colored(F'An error occurred: {error}', 'red'))
         file = None
         return None
 
@@ -209,14 +225,16 @@ async def runTask():
     guild:interactions.Guild = interactions.get(client=bot, obj=interactions.Guild, object_id=1030146188214812783)
     if not exists("moodle/"):
         os.mkdir("moodle/")
-        print("Created folder moodle/")
+        print(colored("Ordner moodle/ wurde erstellt", 'green'))
 
 
     ptime = round(time.time())
-    print("Executing moodle downloader...") 
+    print(colored("Der Moodle-Downloader wird ausgeführt...\n", 'yellow')) 
 
     os.system("moodle-dl -p moodle/")
-    print(f"Select COUNT(*) FROM files WHERE time_stamp > {ptime}")
+
+    print("Wähle alle neuen Dateien aus:\n" + colored(f"SELECT COUNT(*) FROM files WHERE time_stamp > {ptime}", 'yellow', attrs=['bold'])+ "\n")
+    
     res = cur.execute(f"Select COUNT(*) FROM files WHERE time_stamp >= {ptime}")
    
  
@@ -278,7 +296,7 @@ async def runTask():
                                     
                                         # TODO: Einen Thread erstellen ohne die Dateien in den Textchannel zu senden
                                     try:    
-                                            msg_txt = f"**Dateien für den Bereich '{key}'** (von https://moodle.tu-darmstadt.de/course/view.php?id={ccon[0]})"
+                                            msg_txt = f"**Dateien für den Bereich '{key}'** (von {MOODLE_URL}/course/view.php?id={ccon[0]})"
                                             if links:
                                                 for link in links:
                                                     links.remove(link)
