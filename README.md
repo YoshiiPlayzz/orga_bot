@@ -4,7 +4,7 @@ A Discord Bot that send files from moodle in a Discord Channel using [python Moo
 
 ## How to use?
 
-0. Führe `pip install -r requirements.txt` aus
+0. Führe `pip install -r requirements.txt` aus (für raspberrypi: `sudo apt-get install g++ python3-lxml -y`)
 1. Erstelle den Ordner moodle/ und führe die Konfiguration vom Moodle Downloader aus (man kann auch mit `moodle-dl --init -p moodle/` den Befehl außerhalb des Ordners ausführen)
 2. Führe den Moodle Downloader einmalig mit `moodle-dl -p moodle/` aus
 3. Erstelle die Datei .env und füge folgende Werte ein:

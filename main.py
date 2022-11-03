@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
