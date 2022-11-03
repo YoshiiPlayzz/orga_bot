@@ -1,0 +1,8 @@
+token.txt
+.env
+credentials.json
+moodle/*
+token.json
+.idea/
+.vscode/
+venv/
