@@ -232,7 +232,7 @@ async def run_task():
     ptime = round(time.time())
     print(colored("Der Moodle-Downloader wird ausgeführt...\n", 'yellow'))
 
-    await os.system("moodle-dl -p moodle/")
+    os.system("moodle-dl -p moodle/")
 
     print(
         "Wähle alle neuen Dateien aus:\n" + colored(f"SELECT COUNT(*) FROM files WHERE time_stamp > {ptime}", 'yellow',
