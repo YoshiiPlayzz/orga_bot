@@ -1,5 +1,6 @@
 #!/bin/bash 
 echo "Der Bot wird abgeglichen mit dem Remote-Branch und wird falls Änderungen diese herunterladen..."
+git reset --hard
 git pull
 
 echo "\nDer Bot wird nun gestartet!"
