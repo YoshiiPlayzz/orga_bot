@@ -81,10 +81,11 @@ async def getCalendarInformations():
                         channel_id=None,
                     )
                     if event:
+                        time.sleep(2)
                         req = cur.execute(
-                            f"INSERT INTO event VALUES('{ev.uid}', '{category}', '{ev.description}', '{ev.begin}', '{ev.end}', '{ev.name}', {event.get('id')})"
+                            f"INSERT INTO event VALUES('{ev.uid}', '{category}', '{ev.description}', '{ev.begin}', '{ev.end}', '{ev.name}', '{event.get('id')}')"
                         )
-                        con.commit()
+                        con.commit ()
 
 
 # Erstelle ein Event für Abgaben auf moodle
