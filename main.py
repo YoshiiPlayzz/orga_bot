@@ -1,4 +1,11 @@
 #!/usr/bin/env python
+import os
+import sys
+import random
+import sqlite3
+import time
+import interactions
+import asyncio
 
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -9,17 +16,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from termcolor import colored
-
-import os
-import random
-import sqlite3
-import time
 from typing import List
-
-import interactions
 from discord.ext import tasks
-import asyncio
-
 from dotenv import load_dotenv
 from genericpath import exists
 from interactions import ActionRow, SelectMenu, SelectOption
@@ -70,12 +68,16 @@ async def createDatabase():
     res2 = cur.execute(
         "CREATE TABLE IF NOT EXISTS thread_channel(thread_id INT, section_id INT, text_channel INT, PRIMARY KEY(thread_id, section_id), FOREIGN KEY(section_id) REFERENCES files(section_id), FOREIGN KEY(text_channel) REFERENCES course_channel_assignment(text_channel))")
 
+def _restart():
+    sys.stdout.flush()
+    os.execl(sys.executable, 'python', __file__, *sys.argv[1:])
+ 
 
 @bot.event
 async def on_ready():
     print(colored(f'{bot.me.name} hat sich mit Discord verbunden!', 'green'))
     # bot.change_presence(interactions.ClientPresence(status=interactions.StatusType.IDLE, activities=[interactions.PresenceActivity(name="Organisieren", type=interactions.PresenceActivityType.CUSTOM)]))
-
+    
     await createDatabase()
     # Schauen, ob eine Verbindung mit der Datenbank aufgebaut werden konnte
     if con:
@@ -109,6 +111,12 @@ async def assign(ctx: interactions.CommandContext, text_channel: interactions.Ch
     else:
         await ctx.send("No courses found :frowning:")
 
+@bot.command(name="restart", description="Restart bot", options= [], scope=GUILD_ID, default_member_permissions=interactions.Permissions.ADMINISTRATOR)
+async def restart(ctx):
+    await ctx.send("Bot wird neugestartet...")
+    
+    _restart()
+    exit()
 
 # Optionen für die Auswahl der Kurswahl
 
