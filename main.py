@@ -28,6 +28,7 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD_ID = os.getenv('GUILD_ID')
 MOODLE_URL = os.getenv('MOODLE_URL')
+USE_GD = os.getenv('USE_GOOGLE_DRIVE')
 
 
 # Starte den Bot
@@ -279,11 +280,14 @@ async def run_task():
                                             ar.append(file)
                                             files.update({re[3]: ar})
                                         else:
-                                            url = await uploadFile(re[0])
-                                            if url:
-                                                links.append(url)
+                                            if USE_GD:
+                                                url = await uploadFile(re[0])
+                                                if url:
+                                                    links.append(url)
+                                                else:
+                                                    print(colored("Fehler beim hochladen der Datei zu Google Drive!!!", 'red'))
                                             else:
-                                                print("Error with uploading file to Google Drive!!!")
+                                                print(colored("Datei wurde nicht hochgeladen da Google Drive deaktiviert wurde!", 'yellow'))
 
                         for key in files:
                             # Test if thread exists 

@@ -6,3 +6,4 @@ token.json
 .idea/
 .vscode/
 venv/
+Test.session.sql

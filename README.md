@@ -7,11 +7,12 @@ A Discord Bot that send files from moodle in a Discord Channel using [python Moo
 0. Führe `pip install -r requirements.txt` aus (für raspberrypi: `sudo apt-get install g++ python3-lxml -y`)
 1. Erstelle den Ordner moodle/ und führe die Konfiguration vom Moodle Downloader aus (man kann auch mit `moodle-dl --init -p moodle/` den Befehl außerhalb des Ordners ausführen)
 2. Führe den Moodle Downloader einmalig mit `moodle-dl -p moodle/` aus
-3. Erstelle die Datei .env und füge folgende Werte ein:
+3. Erstelle die Datei `.env` und füge folgende Werte ein:
     * `GUILD_ID = [ID vom GUILD]`
     * `DISCORD_TOKEN="[DISCORD BOT TOKEN]"`
     * `MOODLE_URL="[URL VOM MOODLE]"`
-4. Erstelle dir eine Google Cloud Projekt in der Google Cloud Console und aktiviere die API Google Drive.
+    * `USE_GOOGLE_DRIVE=[True/False]`
+4. Erstelle dir eine Google Cloud Projekt in der Google Cloud Console und aktiviere die API Google Drive (**OPTIONAL**, Kann geändert werden durch ändern des Wertes `USE_GOOGLE_DRIVE` in der Datei `.env`)
     * Gehe auf die Webseite und klicke auf "Projekt erstellen" image.png
     * Gebe die Email-Adresse des Google-Accounts, auf welchem die Dateien die größer als 8 MB sind hochgeladen werden sollen, als Apptester an
     * Erstelle nun eine OAuth2 Schlüssel und wähle die Bereiche  `auth/docs`, `auth/drive`, `auth/drive.metadata.readonly`, `auth/docs` aus
