@@ -2,6 +2,12 @@
 
 A Discord Bot that send files from moodle in a Discord Channel using [python Moodle downloader](https://github.com/C0D3D3V/Moodle-Downloader-2)
 
+## Funktionalitäten
+  
+* Automatischer Upload von Dateien in ausgewählte Textchannel bzw. Threads für jede einzelne Unterrichtseinheit
+  * Upload von Dateien in Google Drive falls die Datei über 8MB groß ist
+* Automatische Synchronisation mit dem Moodle-Kalender
+
 ## How to use?
 
 0. Führe `pip install -r requirements.txt` aus (für raspberrypi: `sudo apt-get install g++ python3-lxml -y`)
@@ -13,6 +19,7 @@ A Discord Bot that send files from moodle in a Discord Channel using [python Moo
     * `MOODLE_URL="[URL VOM MOODLE]"`
     * `USE_GOOGLE_DRIVE=[True/False]`
     * `RESTART_TIMER=[True/False]`
+    * `CALENDAR_URL="[URL ZUM MOODLE KALENDER]"`
 4. Erstelle dir eine Google Cloud Projekt in der Google Cloud Console und aktiviere die API Google Drive (**OPTIONAL**, Kann geändert werden durch ändern des Wertes `USE_GOOGLE_DRIVE` in der Datei `.env`)
     * Gehe auf die Webseite und klicke auf "Projekt erstellen" image.png
     * Gebe die Email-Adresse des Google-Accounts, auf welchem die Dateien die größer als 8 MB sind hochgeladen werden sollen, als Apptester an
@@ -31,9 +38,13 @@ Nun kannst du den Discordbot benutzen um deine Moodle-Dateien an einem Ort zu sp
 
 ## Befehle
 
+Hier siehst du eine Liste von Befehlen für den Bot
+
 ### Aktuell existierende Befehle
 
-* /assign #textchannel - Weise ein Textchannel einem Kurs zu
+ Befehl               | Beschreibung                        | Berechtigung
+----------------------|-------------------------------------|--------------
+ /assign `#textchannel` | Weise ein Textchannel einem Kurs zu | Admin
 
 ### Zukünftig geplante Befehle
 
