@@ -83,8 +83,10 @@ async def getCalendarInformations():
                     if event:
                         time.sleep(2)
                         print(event)
+                        insert = f"INSERT INTO event VALUES('{ev.uid}', '{category}', '{ev.description}', '{ev.begin}', '{ev.end}', '{ev.name}', '{event.get('id')}'"
+                        print(insert)
                         req = cur.execute(
-                            f"INSERT INTO event VALUES('{ev.uid}', '{category}', '{ev.description}', '{ev.begin}', '{ev.end}', '{ev.name}', '{event.get('id')}')"
+                            insert
                         )
                         con.commit ()
 
