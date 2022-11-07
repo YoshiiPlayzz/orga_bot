@@ -84,15 +84,16 @@ async def on_ready():
     if con:
         await fetchChannels()
         await generateCourseAssosiation()
-        if RESTART_TIMER in ['true', 'True']:
-            print(colored("Restart-Timer läuft", "green"))
-            await run_restart.start(round(time.time()) + 3600)
-        
+   
         try:
-            await run_task.start()
+            await run_task.start(round(time.time()) + 3600)
         except RuntimeWarning as warning:
             print(colored(f"An error occured: {warning}", 'red'))
-
+        
+        if RESTART_TIMER in ['true', 'True']:
+            print(colored("Restart-Timer läuft", "green"))
+            
+        
     else:
         print(colored("Es konnte keine Verbindung zur Datenbank aufgebaut werden!", 'red'))
         exit()
@@ -233,14 +234,10 @@ async def uploadFile(path):
     return (F'https://drive.google.com/uc?export=download&id={file_id}')
 
 
-@tasks.loop(hours=1, count=2)
-async def run_restart(timer):
-        if round(time.time()) >= timer:
-            print("Neustarten...")
-            _restart()
+   
 
 @tasks.loop(minutes=5)
-async def run_task():
+async def run_task(timer):
     await bot.wait_until_ready()
     guild: interactions.Guild = interactions.get(client=bot, obj=interactions.Guild, object_id=1030146188214812783)
     if not exists("moodle/"):
@@ -352,6 +349,11 @@ async def run_task():
 
                                     except:
                                         print("Failed to upload files")
+
+    if round(time.time()) >= timer:
+        if RESTART_TIMER in ['True', 'true']:
+            print("Neustarten...")
+            _restart()
 
 
 
