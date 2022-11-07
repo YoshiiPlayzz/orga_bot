@@ -12,6 +12,7 @@ A Discord Bot that send files from moodle in a Discord Channel using [python Moo
     * `DISCORD_TOKEN="[DISCORD BOT TOKEN]"`
     * `MOODLE_URL="[URL VOM MOODLE]"`
     * `USE_GOOGLE_DRIVE=[True/False]`
+    * `RESTART_TIMER=[True/False]`
 4. Erstelle dir eine Google Cloud Projekt in der Google Cloud Console und aktiviere die API Google Drive (**OPTIONAL**, Kann geändert werden durch ändern des Wertes `USE_GOOGLE_DRIVE` in der Datei `.env`)
     * Gehe auf die Webseite und klicke auf "Projekt erstellen" image.png
     * Gebe die Email-Adresse des Google-Accounts, auf welchem die Dateien die größer als 8 MB sind hochgeladen werden sollen, als Apptester an

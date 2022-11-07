@@ -27,7 +27,7 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD_ID = os.getenv('GUILD_ID')
 MOODLE_URL = os.getenv('MOODLE_URL')
 USE_GD = os.getenv('USE_GOOGLE_DRIVE')
-
+RESTART_TIMER = os.getenv('RESTART_TIMER')
 
 # Starte den Bot
 bot = interactions.Client(token=TOKEN)
@@ -40,6 +40,7 @@ course_ids = []
 channel_dict = {}
 con = sqlite3.connect("moodle/moodle_state.db")
 cur = con.cursor()
+
 
 
 # Alle Kurse die keinen Kurs zugewiesen sind werden zugewiesen
@@ -83,6 +84,9 @@ async def on_ready():
     if con:
         await fetchChannels()
         await generateCourseAssosiation()
+        if RESTART_TIMER in ['true', 'True']:
+            await run_restart.start(round(time.time()) + 3600)
+        
         try:
             await run_task.start()
         except RuntimeWarning as warning:
@@ -116,7 +120,6 @@ async def restart(ctx):
     await ctx.send("Bot wird neugestartet...")
     
     _restart()
-    exit()
 
 # Optionen für die Auswahl der Kurswahl
 
@@ -229,6 +232,12 @@ async def uploadFile(path):
     return (F'https://drive.google.com/uc?export=download&id={file_id}')
 
 
+@tasks.loop(hours=1, count=2)
+async def run_restart(timer):
+        if round(time.time()) >= timer:
+            print("Neustarten...")
+            _restart()
+
 @tasks.loop(minutes=5)
 async def run_task():
     await bot.wait_until_ready()
@@ -288,7 +297,7 @@ async def run_task():
                                             ar.append(file)
                                             files.update({re[3]: ar})
                                         else:
-                                            if USE_GD:
+                                            if USE_GD in ['true', 'True']:
                                                 url = await uploadFile(re[0])
                                                 if url:
                                                     links.append(url)
