@@ -85,6 +85,7 @@ async def on_ready():
         await fetchChannels()
         await generateCourseAssosiation()
         if RESTART_TIMER in ['true', 'True']:
+            print(colored("Restart-Timer läuft", "green"))
             await run_restart.start(round(time.time()) + 3600)
         
         try:
