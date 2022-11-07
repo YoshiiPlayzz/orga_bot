@@ -1,7 +1,7 @@
 #!/bin/bash 
 echo "Der Bot wird abgeglichen mit dem Remote-Branch und wird falls Änderungen diese herunterladen..."
 git reset --hard
-git pull
+git pull origin master 
 sudo chmod 777 start.sh
 sleep 2
 
