@@ -502,56 +502,59 @@ async def run_task(timer):
                                 if thread_res:
                                     print(f"Versuche den Thread {thread_res[0]} zu bekommen")
                                     if thread_res[0]:
-                                        channel = await interactions.get(
-                                            client=bot,
-                                            obj=interactions.Thread,
-                                            object_id=thread_res[0],
-                                        )
-                                    if files.get(key):
-                                        if (
-                                            channel.type
-                                            != interactions.ChannelType.PUBLIC_THREAD
-                                        ):
+                                        try: 
+                                            channel = await interactions.get(
+                                                client=bot,
+                                                obj=interactions.Thread,
+                                                object_id=thread_res[0],
+                                            )
+                                            if files.get(key):
+                                                if (
+                                                    channel.type
+                                                    != interactions.ChannelType.PUBLIC_THREAD
+                                                ):
 
-                                            # TODO: Einen Thread erstellen ohne die Dateien in den Textchannel zu senden
-                                            try:
-                                                msg_txt = f"**Dateien für den Bereich '{key}'** (von {MOODLE_URL}/course/view.php?id={ccon[0]})"
-                                                if links:
-                                                    for link in links:
-                                                        links.remove(link)
-                                                        msg_txt = msg_txt + f"\n {link}"
+                                                    # TODO: Einen Thread erstellen ohne die Dateien in den Textchannel zu senden
+                                                    try:
+                                                        msg_txt = f"**Dateien für den Bereich '{key}'** (von {MOODLE_URL}/course/view.php?id={ccon[0]})"
+                                                        if links:
+                                                            for link in links:
+                                                                links.remove(link)
+                                                                msg_txt = msg_txt + f"\n {link}"
 
-                                                msg: interactions.Message = await channel.send(
-                                                    msg_txt, files=files.get(key)
-                                                )
-                                                time.sleep(1)
-                                                thread: interactions.Channel = await channel.create_thread(
-                                                    name=key,
-                                                    type=interactions.ChannelType.PUBLIC_THREAD,
-                                                    invitable=True,
-                                                    message_id=msg.id,
-                                                    reason=f"Store files of {key}",
-                                                )
-                                                r = cur.execute(
-                                                    f"INSERT INTO thread_channel(thread_id, section_id, text_channel) SELECT DISTINCT '{thread.id}', section_id, '{channel.id}' FROM files WHERE section_name='{key}' and course_id='{ccon[0]}'"
-                                                )
-                                                con.commit()
-                                            except:
-                                                print("Failed to upload files")
-                                        else:
+                                                        msg: interactions.Message = await channel.send(
+                                                            msg_txt, files=files.get(key)
+                                                        )
+                                                        time.sleep(1)
+                                                        thread: interactions.Channel = await channel.create_thread(
+                                                            name=key,
+                                                            type=interactions.ChannelType.PUBLIC_THREAD,
+                                                            invitable=True,
+                                                            message_id=msg.id,
+                                                            reason=f"Store files of {key}",
+                                                        )
+                                                        r = cur.execute(
+                                                            f"INSERT INTO thread_channel(thread_id, section_id, text_channel) SELECT DISTINCT '{thread.id}', section_id, '{channel.id}' FROM files WHERE section_name='{key}' and course_id='{ccon[0]}'"
+                                                        )
+                                                        con.commit()
+                                                    except:
+                                                        print("Failed to upload files")
+                                                else:
 
-                                            try:
-                                                thread: interactions.Channel = channel
-                                                msg_txt = ""
-                                                if links:
-                                                    for link in links:
-                                                        links.remove(link)
-                                                        msg_txt = msg_txt + f"\n {link}"
+                                                    try:
+                                                        thread: interactions.Channel = channel
+                                                        msg_txt = ""
+                                                        if links:
+                                                            for link in links:
+                                                                links.remove(link)
+                                                                msg_txt = msg_txt + f"\n {link}"
 
-                                                await thread.send(msg_txt, files=files.get(key))
+                                                        await thread.send(msg_txt, files=files.get(key))
 
-                                            except:
-                                                print("Failed to upload files")
+                                                    except:
+                                                        print("Failed to upload files")
+                                        except:
+                                            print("Fehler beim holen des Threads vom Discord... vielleicht wurde dieser gelöscht... ")
 
     if round(time.time()) >= timer:
         if RESTART_TIMER in ["True", "true"]:
