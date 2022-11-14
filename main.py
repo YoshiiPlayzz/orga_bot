@@ -319,8 +319,7 @@ async def uploadFile(path):
     SCOPES = [
         "https://www.googleapis.com/auth/docs",
         "https://www.googleapis.com/auth/drive",
-        "https://www.googleapis.com/auth/drive.metadata.readonly",
-        "/auth/docs",
+        "https://www.googleapis.com/auth/drive.metadata.readonly"
     ]
 
     creds = None
